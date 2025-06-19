@@ -20,12 +20,14 @@ function RootLayout() {
           <div className="d-flex align-items-center gap-3">
             
 
+            {user?.role === 'user' && (
             <NavLink
               to="/user/reserve"
               className={({ isActive }) => isActive ? 'nav-link fw-bold text-primary' : 'nav-link'}
             >
               Reservation
             </NavLink>
+            )}
 
             {user?.role === 'user' && (
             <NavLink
@@ -42,7 +44,16 @@ function RootLayout() {
                 to="/admin"
                 className={({ isActive }) => isActive ? 'nav-link fw-bold text-primary' : 'nav-link'}
             >
-                Halaman Admin
+                Manage Meja
+            </NavLink>
+            )}
+
+            {user?.role === 'admin' && (
+            <NavLink
+                to="/admin/manageReservasi"
+                className={({ isActive }) => isActive ? 'nav-link fw-bold text-primary' : 'nav-link'}
+            >
+                Manage Reservasi
             </NavLink>
             )}
 

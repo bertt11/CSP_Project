@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { getAuth } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+
 
 
 function ReserveTablePage() {
@@ -61,36 +63,40 @@ function ReserveTablePage() {
     const data = await response.json();
 
     if (data.token) {
-      // Auto-simulasikan transaksi sukses tanpa membuka Snap UI
-      const fakeResult = {
-        payment_type: 'sandbox-auto',
-        gross_amount: 1,
-        transaction_status: 'settlement',
-        transaction_id: 'sandbox-auto-' + Date.now(),
-        order_id: 'ORDER-' + Date.now()
-      };
+  // Auto-simulasikan transaksi sukses tanpa membuka Snap UI
+  const fakeResult = {
+    payment_type: 'sandbox-auto',
+    gross_amount: 1,
+    transaction_status: 'settlement',
+    transaction_id: 'sandbox-auto-' + Date.now(),
+    order_id: 'ORDER-' + Date.now()
+  };
 
-      const auth = getAuth();
-      const user = auth.currentUser;
+  const auth = getAuth();
+  const user = auth.currentUser;
 
-      await addDoc(collection(db, 'reservations'), {
-        name: formData.name,
-        tableNumber: selectedTable.number,
-        method: fakeResult.payment_type,
-        amount: fakeResult.gross_amount,
-        status: fakeResult.transaction_status,
-        transaction_id: fakeResult.transaction_id,
-        order_id: fakeResult.order_id,
-        user_email: user?.email || 'unknown',
-        createdAt: serverTimestamp()
-      });
+  await addDoc(collection(db, 'reservations'), {
+    name: formData.name,
+    tableNumber: selectedTable.number,
+    method: fakeResult.payment_type,
+    amount: fakeResult.gross_amount,
+    status: fakeResult.transaction_status,
+    transaction_id: fakeResult.transaction_id,
+    order_id: fakeResult.order_id,
+    user_email: user?.email || 'unknown',
+    createdAt: serverTimestamp()
+  });
 
-      alert('Pembayaran berhasil (simulasi)!');
-      setFormData({ name: '', method: 'Midtrans' });
-      setSelectedTable(null);
-    } else {
-      alert('Gagal mendapatkan token Midtrans');
-    }
+  // ubah status meja jadi reserved
+  const tableRef = doc(db, 'tables', selectedTable.id);
+  await updateDoc(tableRef, { status: 'reserved' });
+  await getTables();
+
+  alert('Pembayaran berhasil (simulasi)!');
+  setFormData({ name: '', method: 'Midtrans' });
+  setSelectedTable(null);
+}
+
 
   } catch (error) {
     console.error('Midtrans error:', error);

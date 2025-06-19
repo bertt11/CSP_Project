@@ -3,6 +3,7 @@ import RootLayout from '../layouts/RootLayouts';
 import ReserveTablePage from '../pages/User/PemesananMeja';
 import HistoryTablePage from '../pages/User/HistoryPemesanan';
 import AdminPage from '../pages/Admin/ManageMeja';
+import AdminManageReservation from '../pages/Admin/ManagePemesanan';
 import Login from '../pages/Login';
 import ProtectedRoute from '../components/protectedRoutes';
 import Register from '../pages/Register';
@@ -45,7 +46,15 @@ export const router = createBrowserRouter([
             <AdminPage />
           </ProtectedRoute>
         )
-      }
+      },
+       {
+        path: '/admin/manageReservasi',
+        element: (
+          <ProtectedRoute onlyAdmin>
+            <AdminManageReservation />
+          </ProtectedRoute>
+        )
+      },
     ]
   }
 ]);

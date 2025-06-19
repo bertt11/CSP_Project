@@ -73,7 +73,7 @@ function AdminPage() {
 
   return (
     <div className="container py-4">
-      <h2 className="mb-4">Manajemen Meja</h2>
+      <h2 className="mb-4">Kelola Meja</h2>
 
       <div className="d-flex flex-wrap gap-3 align-items-center mb-3">
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
