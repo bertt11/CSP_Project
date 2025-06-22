@@ -17,22 +17,23 @@ app.post('/create-transaction', async (req, res) => {
   const { name, tableNumber } = req.body;
 
   const parameter = {
-    transaction_details: {
-      order_id: `ORDER-${Date.now()}`,
-      gross_amount: 1,
+  transaction_details: {
+    order_id: `ORDER-${Date.now()}`,
+    gross_amount: 1,
+  },
+  customer_details: {
+    first_name: name,
+  },
+  item_details: [
+    {
+      id: `meja-${tableNumber}`,
+      price: 1,
+      quantity: 1,
+      name: `Reservasi Meja ${tableNumber}`,
     },
-    customer_details: {
-      first_name: name,
-    },
-    item_details: [
-      {
-        id: `meja-${tableNumber}`,
-        price: 1,
-        quantity: 1,
-        name: `Reservasi Meja ${tableNumber}`,
-      },
-    ],
-  };
+  ],
+};
+
 
   try {
     const transaction = await snap.createTransaction(parameter);

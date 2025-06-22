@@ -46,6 +46,7 @@ function ReserveTablePage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  //COMMAND DARI SINI
   const handlePayment = async (e) => {
   e.preventDefault();
 
@@ -105,63 +106,66 @@ function ReserveTablePage() {
 };
 
 
-  // const handlePayment = async (e) => {
-  //   e.preventDefault();
+//   const handlePayment = async (e) => {
+//   e.preventDefault();
 
-  //   try {
-  //     // Request token from backend
-  //     const response = await fetch('http://localhost:5000/create-transaction', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({
-  //         name: formData.name,
-  //         tableNumber: selectedTable.number,
-  //       })
-  //     });
+//   try {
+//     const response = await fetch("http://localhost:5000/create-transaction", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         name: formData.name,
+//         tableNumber: selectedTable.number,
+//       }),
+//     });
+//     const data = await response.json();
 
-  //     const data = await response.json();
+//     if (data.token) {
+//       window.snap.pay(data.token, {
+//         onSuccess: async (result) => {
+//           console.log(result);
+//           //simpan data ke Firestore
+//           const auth = getAuth();
+//           const user = auth.currentUser;
 
-  //     if (data.token) {
-  //       window.snap.pay(data.token, {
-  //       onSuccess: async function (result) {
-  //         try {
-  //           await addDoc(collection(db, 'reservations'), {
-  //             name: formData.name,
-  //             tableNumber: selectedTable.number,
-  //             method: result.payment_type,
-  //             amount: result.gross_amount,
-  //             status: result.transaction_status,
-  //             transaction_id: result.transaction_id,
-  //             order_id: result.order_id,
-  //             createdAt: serverTimestamp()
-  //           });
+//           await addDoc(collection(db, "reservations"), {
+//             name: formData.name,
+//             tableNumber: selectedTable.number,
+//             method: result.payment_type,
+//             amount: result.gross_amount,
+//             status: result.transaction_status,
+//             transaction_id: result.transaction_id,
+//             order_id: result.order_id,
+//             user_email: user?.email || "unknown",
+//             createdAt: serverTimestamp(),
+//           });
 
-  //           alert('Pembayaran berhasil!');
-  //           setFormData({ name: '', method: 'Midtrans' });
-  //           setSelectedTable(null);
-  //         } catch (err) {
-  //           console.error('Gagal simpan ke Firestore:', err);
-  //           alert('Pembayaran berhasil tapi gagal simpan data.');
-  //         }
-  //       },
-  //       onPending: function () {
-  //         alert('Pembayaran tertunda (pending).');
-  //       },
-  //       onError: function (error) {
-  //         console.error('Midtrans error:', error);
-  //         alert('Terjadi kesalahan saat pembayaran.');
-  //       }
-  //     });
+//           const tableRef = doc(db, "tables", selectedTable.id);
+//           await updateDoc(tableRef, { status: "reserved" });
+//           await getTables();
 
-  //     } else {
-  //       alert('Gagal mendapatkan token Midtrans');
-  //     }
+//           alert("Pembayaran berhasil dan data masuk Firestore!");
+//           setFormData({ name: "", method: "Midtrans" });
+//           setSelectedTable(null);
+//         },
+//         onPending: function() {
+//           alert("Pembayaran pending.");
+//         },
+//         onError: function(error) {
+//           alert("Error pembayaran.");
+//           console.error(error);
+//         },
+//       });
 
-  //   } catch (error) {
-  //     console.error('Midtrans error:', error);
-  //     alert('Gagal melakukan proses pembayaran.');
-  //   }
-  // };
+//     } else {
+//       alert("Gagal mendapatkan token Midtrans");
+//     }
+//   } catch (error) {
+//     console.error("Midtrans error:", error);
+//     alert("Gagal melakukan proses pembayaran.");
+//   }
+// };
+
 
   const getColorByStatus = (status) => {
     switch (status) {
