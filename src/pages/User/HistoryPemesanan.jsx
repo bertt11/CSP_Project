@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
@@ -44,6 +44,25 @@ function ReservationHistory() {
     return () => unsubscribe();
   }, []);
 
+  const handleCancel = async (id, selectedTable) => {
+    if (window.confirm('Apakah Anda yakin ingin membatalkan pemesanan ini?')) {
+      try {
+        // Hapus reservasi
+        await deleteDoc(doc(db, 'reservations', id));
+
+        // Update status meja
+        const tableRef = doc(db, 'tables', selectedTable.id);
+        await updateDoc(tableRef, { status: 'available' });
+        await getTables();
+
+        // Update state lokal
+        setReservations(prev => prev.filter(item => item.id !== id));
+      } catch (error) {
+        console.error('Gagal membatalkan pemesanan:', error);
+      }
+    }
+  };
+
   return (
     <div className="container py-4">
       <h2 className="mb-4 text-center">History Pemesanan Anda</h2>
@@ -63,6 +82,7 @@ function ReservationHistory() {
                 <th>Metode</th>
                 <th>Total</th>
                 <th>Tanggal</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -72,9 +92,16 @@ function ReservationHistory() {
                   <td>{res.name}</td>
                   <td>{res.tableNumber}</td>
                   <td>{res.method}</td>
-                 
                   <td>Rp {res.amount}</td>
                   <td>{res.createdAt?.toDate().toLocaleString() || '-'}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-warning"
+                      onClick={() => handleCancel(res.id, res.tableNumber)}
+                    >
+                      Cancel
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 
 function ManageReservations() {
@@ -7,27 +7,45 @@ function ManageReservations() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchReservations = async () => {
-      try {
-        const q = query(
-          collection(db, 'reservations'),
-          orderBy('createdAt', 'desc')
-        );
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setReservations(data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Gagal memuat data:', error);
-        setLoading(false);
-      }
-    };
-
     fetchReservations();
   }, []);
+
+  const fetchReservations = async () => {
+    try {
+      const q = query(
+        collection(db, 'reservations'),
+        orderBy('createdAt', 'desc')
+      );
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setReservations(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Gagal memuat data:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id, tableNumber) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus pemesanan ini?')) {
+      try {
+        // Hapus pemesanan
+        await deleteDoc(doc(db, 'reservations', id));
+
+        // Update status meja jadi available
+        const tableRef = doc(db, 'tables', String(tableNumber));
+        await updateDoc(tableRef, { status: 'available' });
+
+        // Update state
+        setReservations(prev => prev.filter(item => item.id !== id));
+      } catch (error) {
+        console.error('Gagal menghapus pemesanan atau update status meja:', error);
+      }
+    }
+  };
 
   return (
     <div className="container py-4">
@@ -48,6 +66,7 @@ function ManageReservations() {
                 <th>Metode Pembayaran</th>
                 <th>Total</th>
                 <th>Tanggal</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -59,6 +78,14 @@ function ManageReservations() {
                   <td>{res.method}</td>
                   <td>Rp {res.amount}</td>
                   <td>{res.createdAt?.toDate().toLocaleString() || '-'}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleDelete(res.id, res.tableNumber)}
+                    >
+                      Hapus
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
